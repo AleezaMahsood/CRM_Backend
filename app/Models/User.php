@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-
+use app\Models\leads; 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -30,6 +30,10 @@ class User extends Authenticatable
         'team',
         'role'
     ];
+    public function leads()
+    {
+        return $this->hasMany(leads::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
@@ -50,12 +54,12 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
-    const GENDER = ['male', 'female', 'other'];
-    const LOCATIONS = ['location1', 'location2', 'location3'];
-    const DEPARTMENTS = ['department1', 'department2', 'department3'];
-    const DESIGNATIONS = ['designation1', 'designation2', 'designation3'];
-    const TEAMS = ['team1', 'team2', 'team3'];
-    const ROLES = ['role1', 'role2', 'role3'];
+    const GENDER = ['male', 'female'];
+    const LOCATIONS = ['Islamabad','Peshawar','Quetta','Multan','Rawalpindi', 'Karachi', 'Lahore'];
+    const DEPARTMENTS = ['Testers', 'Technical', 'Sales','Marketing','HR'];
+    const DESIGNATIONS = ['Senior Manager','Sales Person','Project Manager', 'Manager', 'Executive Manager'];
+    const TEAMS = ['Francis', ' Koderz', 'Falcon','Knight','Tech','Creative'];
+    const ROLES = ['user', 'admin'];
     
     public static function updateStatus()
     {

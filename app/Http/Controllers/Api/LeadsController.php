@@ -26,11 +26,11 @@ class LeadsController extends Controller
     {
     $validated = Validator::make($request->all(),[
         'leadName' => 'required|string|max:255',
-            'phoneNumber' => 'required|string|max:255',
-            'project' => 'required|string|max:255',
-            'campaign' => 'nullable|string|max:255',
-            'lead_cost' => 'required|numeric',
-            'lead_date' => 'required|date',
+        'phoneNumber' => 'required|string|max:255',
+        'project' => 'nullable|string|max:255',
+        'campaign' => 'nullable|string|max:255',
+        'project_cost' => 'nullable|numeric',
+        'date' => 'required|date',
         //'campaigns' => 'required|array', // Ensure categories is an array
         //'campaigns.*' => 'exists:campaigns,id'
     ]);
@@ -46,8 +46,8 @@ class LeadsController extends Controller
             'phoneNumber' => $request->phoneNumber,
             'project' => $request->project,
             'campaign' => $request->campaign,
-            'lead_cost' => $request->lead_cost,
-            'lead_date' => $request->lead_date
+            'project_cost' => $request->project_cost,
+            'date' => $request->date
         ]); 
         
     }
