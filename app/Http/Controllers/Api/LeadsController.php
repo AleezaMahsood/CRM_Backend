@@ -5,6 +5,8 @@ use App\Models\leads;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
 
 class LeadsController extends Controller
 {
@@ -24,49 +26,86 @@ class LeadsController extends Controller
      */
     public function store(Request $request)
     {
-    $validated = Validator::make($request->all(),[
-        'leadName' => 'required|string|max:255',
-        'phoneNumber' => 'required|string|max:255',
-        'project' => 'nullable|string|max:255',
-        'campaign' => 'nullable|string|max:255',
-        'project_cost' => 'nullable|numeric',
-        'date' => 'required|date',
-        //'campaigns' => 'required|array', // Ensure categories is an array
-        //'campaigns.*' => 'exists:campaigns,id'
-    ]);
-    if($validated->fails()){
-        return response()->json([
-            'status'=>422,
-            'error'=>$validated->messages()
-        ],422);
-    }else{
-        //$leads = leads::create($validated);
-        $leads = leads::create([
-            'leadName' => $request->leadName,
-            'phoneNumber' => $request->phoneNumber,
-            'project' => $request->project,
-            'campaign' => $request->campaign,
-            'project_cost' => $request->project_cost,
-            'date' => $request->date
-        ]); 
+            $validated = Validator::make($request->all(), [
+                'leadName' => 'required|string|max:255',
+                'job_title' => 'nullable|string|max:255', // Added job_title attribute
+                'phoneNumber' => 'required|string|max:255',      // Added phone attribute
+                'mobile' => 'nullable|string|max:255',     // Added mobile attribute
+                'whatsapp' => 'nullable|string|max:255',   // Added whatsapp attribute
+                'source' => 'nullable|string|max:255',     // Added source attribute
+                'industry' => 'nullable|string|max:255',   // Added industry attribute
+                'company' => 'nullable|string|max:255',    // Added company attribute
+                'email' => 'nullable|string|email|max:255',// Added email attribute
+                'fax' => 'nullable|string|max:255',        // Added fax attribute
+                'website' => 'nullable|string|url|max:255',// Added website attribute
+                'status' => 'required|string|max:255',     // Ensure status is required
+                'employees' => 'nullable|integer',          // Added employees attribute
+                'rating' => 'nullable|string|max:100',             // Added rating attribute
+                'project' => 'nullable|string|max:255',
+                'campaign' => 'nullable|string|max:255',
+                'project_cost' => 'nullable|numeric',
+                'date' => 'required|date',
+                'remarks' => 'nullable|string',
+                'revenue' => 'nullable|numeric',
+                'skype' => 'nullable|string|max:255',
+                'user_id' => 'exists:users,id'
+            ]);
         
+            if ($validated->fails()) {
+                return response()->json([
+                    'status' => 422,
+                    'error' => $validated->messages()
+                ], 422);
+            } else {
+                
+                //$userWithLeastLeads = User::withCount('leads')->orderBy('leads_count', 'asc')->first();
+                $userWithLeastLeads = User::leftJoin('leads', 'users.id', '=', 'leads.user_id')
+                ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
+                ->groupBy('users.id')
+                ->orderBy('lead_count')
+                ->first();
+                $leads = leads::create([
+                    'leadName' => $request->leadName,
+                    'job_title' => $request->job_title,     // Added job_title
+                    'phoneNumber' => $request->phoneNumber,             // Added phone
+                    'mobile' => $request->mobile,           // Added mobile
+                    'whatsapp' => $request->whatsapp,       // Added whatsapp
+                    'source' => $request->source,           // Added source
+                    'industry' => $request->industry,       // Added industry
+                    'company' => $request->company,         // Added company
+                    'email' => $request->email,             // Added email
+                    'fax' => $request->fax,                 // Added fax
+                    'website' => $request->website,         // Added website
+                    'status' => $request->status,
+                    'employees' => $request->employees,     // Added employees
+                    'rating' => $request->rating,           // Added rating
+                    'remarks' => $request->remarks,
+                    'revenue' => $request->revenue,
+                    'skype' => $request->skype,
+                    'project' => $request->project,
+                    'campaign' => $request->campaign,
+                    'project_cost' => $request->project_cost,
+                    'date' => $request->date,
+                    'user_id' => $userWithLeastLeads->id,
+                ]);
+            }
+           
+        
+            if ($leads) {
+                return response()->json([
+                    'status' => 200,
+                    'message' => 'Lead created successfully'
+                ], 200);
+            } else {
+                return response()->json([
+                    'status' => 500,
+                    'message' => 'Something went wrong'
+                ], 500);
+            }
     }
-    if($leads){
-        //$article->category()->attach($request->categories);
-        return response()->json([
-            'status'=>200,
-            'message'=>'Lead created successfully'
-        ]
-        ,200);
-    }else{
-        return response()->json([
-            'status'=>500,
-            'message'=>'something went wrong'
-        ]
-        ,500);    
-    }
+        
 
-    }
+
 
     /**
      * Display the specified resource.

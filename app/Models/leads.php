@@ -16,6 +16,22 @@ class leads extends Model
         'campaign',
         'project_cost',
         'date',
+        'user_id',
+        'job_title',
+        'mobile',
+        'whatsapp',
+        'source',
+        'industry',
+        'company',
+        'email',
+        'fax',
+        'website',
+        'status',
+        'employees',
+        'rating',
+        'revenue',
+        'skype',
+        'remarks',
 
     ];
     public function user()
