@@ -7,7 +7,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Str;
 class LeadsController extends Controller
 {
     /**
@@ -134,6 +135,43 @@ class LeadsController extends Controller
 
         return response()->json($lead, 200);
     }
+    public function countLeadsByStatus($userId)
+{
+    $leadsCounts=leads::select('status', \DB::raw('count(*) as count'))
+        ->where('user_id', $userId)
+        ->groupBy('status')
+        ->get();
+        return response()->json($leadsCounts);   
+}
+// Laravel Controller to fetch user-specific data
+public function getUserLeads(Request $request)
+{
+    // Retrieve authenticated user ID from the request object
+        try {
+
+
+
+            $token= request()->bearerToken();
+            if (Str::startsWith($authorizationHeader, 'Bearer ')) {
+                // Extract the token (remove the "Bearer " prefix)
+                $accessToken = Str::substr($authorizationHeader, 7); // Remove "Bearer " prefix
+            } else {
+                // Token format is unexpected
+                return response()->json(['error' => 'Invalid token format'], 400);
+            }
+            // Retrieve the access token from the request headers
+            // Decrypt the access token
+           
+          // return response()->$authorizationHeader;
+           
+        } catch (\Exception $e) {
+            // Handle decryption errors
+            //return response()->json(['error' => 'Unauthorized'], 401);
+        }
+}
+
+
+
 
     /**
      * Remove the specified resource from storage.

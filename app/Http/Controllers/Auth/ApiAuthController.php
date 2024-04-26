@@ -9,27 +9,15 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Auth;
 
 class ApiAuthController extends Controller
-{
-    // public function register (Request $request) {
-    //    $validator = Validator::make($request->all(), [
-    //        'name' => 'required|string|max:255',
-    //        'email' => 'required|string|email|max:255|unique:users',
-    //        'password' => 'required|string|min:6|confirmed',
-    //    ]);
-    //    if ($validator->fails())
-    //    {
-    //        return response(['errors'=>$validator->errors()->all()], 422);
-    //    }
-    //    $request['password']=Hash::make($request['password']);
-    //    $request['remember_token'] = Str::random(10);
-    //    $user = User::create($request->toArray());
-     //   $token = $user->createToken('Laravel Password Grant Client')->accessToken;
-     //   $response = ['token' => $token];
-      //  return response($response, 200);
-    //}
-    
+{ 
+    public function __construct()
+    {
+        $this->middleware('custom.auth', ['except' => ['login', 'register', 'getEnums', 'index']]);
+    }
+
     public function register(Request $request)
 {
     $validator = Validator::make($request->all(), [
@@ -51,7 +39,7 @@ class ApiAuthController extends Controller
 
     $data = $request->only(['firstName', 'lastName', 'email', 'password']);
     $data['password'] = Hash::make($data['password']);
-    $data['remember_token'] = Str::random(10);
+    //$data['remember_token'] = Str::random(10);
 
     // Add additional user attributes
     $data['gender'] = $request->gender;
@@ -62,55 +50,124 @@ class ApiAuthController extends Controller
     $data['role'] = $request->role;
 
     $user = User::create($data);
+    $token = Auth::login($user);
+    return response()->json([
+        'status' => 'success',
+        'message' => 'User created successfully',
+        'user' => $user,
+        'authorisation' => [
+            'token' => $token,
+            'type' => 'bearer',
+        ]
+    ]);
 
-    $token = $user->createToken('Laravel Password Grant Client')->accessToken;
+   // $token = $user->createToken('Laravel Password Grant Client')->accessToken;
 
-    $response = ['token' => $token];
+   // $response = ['token' => $token];
 
-    return response($response, 200);
+   // return response($response, 200);
 }
    
     public function login(Request $request)
     {
 
-        $credentials = $request->validate([
+         $credentials = $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-        ]);
+        ]); 
 
         $user = User::where('email', $credentials['email'])->first();
-
-        if (!$user || !Hash::check($credentials['password'], $user->password)) {
-
-            throw ValidationException::withMessages([
-                'email' => ['The provided credentials are incorrect.'],
-            ]);
-        }
+       // $user=Auth::user();
+       // $id=user()->id;
+       if (! $token = auth()->attempt($credentials)) {
+        return response()->json(['error' => 'Unauthorized'], 401);
+    }
         
-        $user->last_login_time = now();
-        $user->save();
+       // $credentials = request(['email', 'password']);
+       $user->last_login_time = now();
+       $user->save();
+   
+       // Update status to active
+       $user->status = 'active';
+       $user->save();
+
+       
+
+        return $this->respondWithToken($token);
+       
+       
+        //$token = $user->createToken('authToken')->plainTextToken;
+
+      //  return response()->json([
+       //     'success' => true,
+       //     'user' => $user,
+        //    'id'=>$id,
+       //     'access_token' => $token,
+       //     'message' => 'Login successful',
+      //  ], status:200);
+    }
     
-        // Update status to active
-        $user->status = 'active';
-        $user->save();
+       /*
+     * Get the authenticated User.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function me()
+    {
+        # Here we just get information about current user
+        //return response()->json(auth()->user());
+        if(auth()->check()){
 
-        $token = $user->createToken('authToken')->plainTextToken;
+            return response()->json(auth()->user());
+        } else{
+            return response()->json(['error' => 'Unauthorized: User has logged out or token is not valid'], 401);
+        }
+    
+    }
 
+    /**
+     * Log the user out (Invalidate the token).
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout()
+    {
+        auth()->logout(); # This is just logout function that will destroy access token of current user
+
+        return response()->json(['message' => 'Successfully logged out']);
+    }
+
+    /**
+     * Refresh a token.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refresh()
+    {
+        # When access token will be expired, we are going to generate a new one wit this function 
+        # and return it here in response
+        return $this->respondWithToken(auth()->refresh());
+    }
+
+    /**
+     * Get the token array structure.
+     *
+     * @param  string $token
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function respondWithToken($token)
+    {
+        # This function is used to make JSON response with new
+        # access token of current user
         return response()->json([
-            'success' => true,
-            'user' => $user,
             'access_token' => $token,
-            'message' => 'Login successful',
-        ], status:200);
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60
+        ]);
     }
 
-
-    public function logout (Request $request) {
-        $token = $request->user()->token();
-        $token->revoke();
-        $response = ['message' => 'You have been successfully logged out!'];
-        return response($response, 200);
-    }
+    
     public function getEnums()
 {
     return response()->json([
@@ -121,6 +178,7 @@ class ApiAuthController extends Controller
         'teams' => User::TEAMS,
         'roles' => User::ROLES,
     ]);
+    
 }
 
 public function index()

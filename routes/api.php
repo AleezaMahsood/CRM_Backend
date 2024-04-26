@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Models\Campaigns;
 use App\Models\Projects;
+use App\Http\Middleware\CustomAuthMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,19 +23,32 @@ use App\Models\Projects;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
-    return $request->user();
-});
-//registration and login routes
-Route::post('/login', [ApiAuthController::class, 'login'])->name('login.api');
-Route::post('/register', [ApiAuthController::class, 'register'])->name('register.api');
-Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout.api');
-Route::get('/enums', [ApiAuthController::class, 'getEnums']);
+//Route::middleware(['auth:api'])->get('/user-leads', [leadsController::class, 'getUserLeads']);
+//Route::middleware('custom.auth')->get('/user-leads', [LeadsController::class, 'getUserLeads']);
+Route::get('/user-leads', [LeadsController::class, 'getUserLeads']);
 
+//registration and login routes
+//Route::post('/login', [ApiAuthController::class, 'login'])->name('login.api');
+//Route::post('/register', [ApiAuthController::class, 'register'])->name('register.api');
+//Route::post('/logout', [ApiAuthController::class, 'logout'])->name('logout.api');
+
+//Route::post('login', [ApiAuthController::class, 'login'])->name('auth.login');
+Route::group([
+    'middleware' => 'custom.auth',
+    'prefix' => 'auth'
+], function ($router) {
+    Route::post('register', [ApiAuthController::class, 'register'])->WithoutMiddleware('custom.auth');
+    Route::post('login', [ApiAuthController::class, 'login'])->WithoutMiddleware('custom.auth');
+    Route::post('logout', [ApiAuthController::class, 'logout']);
+    Route::post('refresh', [ApiAuthController::class, 'refresh']);
+    Route::post('me', [ApiAuthController::class, 'me']);
+});
+
+Route::get('/enums',[ApiAuthController::class, 'getEnums']);
 //lead routes
 Route::get('/leads', [LeadsController::class, 'index']);
 Route::post('/leads', [LeadsController::class, 'store']);
-
+Route::get('/user/{userId}/leads', [LeadsController::class, 'countLeadsByStatus']);
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
 
