@@ -137,37 +137,29 @@ class LeadsController extends Controller
     }
     public function countLeadsByStatus($userId)
 {
-    $leadsCounts=leads::select('status', \DB::raw('count(*) as count'))
-        ->where('user_id', $userId)
-        ->groupBy('status')
-        ->get();
-        return response()->json($leadsCounts);   
+    $leadCounts = leads::select(
+        DB::raw('SUM(CASE WHEN status = "new" THEN 1 ELSE 0 END) AS New'),
+        DB::raw('SUM(CASE WHEN status = "converted" THEN 1 ELSE 0 END) AS Converted'),
+        DB::raw('SUM(CASE WHEN status = "follow-up" THEN 1 ELSE 0 END) AS Follow_Ups'),
+        DB::raw('COUNT(*) AS Total_Leads')
+    )
+    ->where('user_id', $userId)
+    ->groupBy('user_id')
+    ->first();
+
+// If no leads found for the user, set counts to 0
+if (!$leadCounts) {
+    $leadCounts = [
+        'New' => 0,
+        'Converted' => 0,
+        'Follow_Ups' => 0,
+        'Total_Leads' => 0,
+    ];
+}else{
+    $leadCounts = $leadCounts->toArray();
 }
-// Laravel Controller to fetch user-specific data
-public function getUserLeads(Request $request)
-{
-    // Retrieve authenticated user ID from the request object
-        try {
 
-
-
-            $token= request()->bearerToken();
-            if (Str::startsWith($authorizationHeader, 'Bearer ')) {
-                // Extract the token (remove the "Bearer " prefix)
-                $accessToken = Str::substr($authorizationHeader, 7); // Remove "Bearer " prefix
-            } else {
-                // Token format is unexpected
-                return response()->json(['error' => 'Invalid token format'], 400);
-            }
-            // Retrieve the access token from the request headers
-            // Decrypt the access token
-           
-          // return response()->$authorizationHeader;
-           
-        } catch (\Exception $e) {
-            // Handle decryption errors
-            //return response()->json(['error' => 'Unauthorized'], 401);
-        }
+return response()->json($leadCounts);
 }
 
 
