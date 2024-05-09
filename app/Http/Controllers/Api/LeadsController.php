@@ -140,7 +140,7 @@ class LeadsController extends Controller
     $leadCounts = leads::select(
         DB::raw('SUM(CASE WHEN status = "new" THEN 1 ELSE 0 END) AS New'),
         DB::raw('SUM(CASE WHEN status = "converted" THEN 1 ELSE 0 END) AS Converted'),
-        DB::raw('SUM(CASE WHEN status = "follow-up" THEN 1 ELSE 0 END) AS Follow_Ups'),
+        DB::raw('SUM(CASE WHEN status = "follow up" THEN 1 ELSE 0 END) AS Follow_Ups'),
         DB::raw('COUNT(*) AS Total_Leads')
     )
     ->where('user_id', $userId)
@@ -161,8 +161,23 @@ if (!$leadCounts) {
 
 return response()->json($leadCounts);
 }
+//Function to get leads for a specific user to evaluate his performance
+public function fetchLeadsByAllStatuses($userId)
+{
+    $statuses = ['new', 'pending', 'valid', 'rejected', 'converted', 'follow up'];
 
+    $labels = [];
+    $totalLeads=[];
+    foreach ($statuses as $status) {
+        $labels[]=$status;
+        $totalLeads[] = leads::where('user_id', $userId)->where('status', $status)->count();
+    }
 
+     return [
+            'labels' => $labels,
+            'totalLeads' => $totalLeads,
+        ];
+}
 
 
     /**
