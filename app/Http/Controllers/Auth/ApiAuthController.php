@@ -187,7 +187,7 @@ public function index()
         return collect($user->toArray())->except('password', 'remember_token','created_at','updated_at','email_verified_at');
     });
 
-    return response()->json(['users' => $users], 200);
+    return response()->json($users, 200, [], JSON_PRETTY_PRINT);
 }  
     
 }

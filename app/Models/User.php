@@ -59,7 +59,7 @@ class User extends Authenticatable implements JWTSubject
     const LOCATIONS = ['Islamabad','Peshawar','Quetta','Multan','Rawalpindi', 'Karachi', 'Lahore'];
     const DEPARTMENTS = ['Testers', 'Technical', 'Sales','Marketing','HR'];
     const DESIGNATIONS = ['Senior Manager','Sales Person','Project Manager', 'Manager', 'Executive Manager'];
-    const TEAMS = ['Francis', ' Koderz', 'Falcon','Knight','Tech','Creative'];
+    const TEAMS = ['Francis', 'Koderz', 'Falcon','Knight','Tech','Creative'];
     const ROLES = ['user', 'admin'];
     
     public static function updateStatus()

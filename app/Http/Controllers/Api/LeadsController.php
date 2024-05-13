@@ -61,10 +61,12 @@ class LeadsController extends Controller
                 
                 //$userWithLeastLeads = User::withCount('leads')->orderBy('leads_count', 'asc')->first();
                 $userWithLeastLeads = User::leftJoin('leads', 'users.id', '=', 'leads.user_id')
+                ->where('users.role', 'user')
                 ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
                 ->groupBy('users.id')
                 ->orderBy('lead_count')
                 ->first();
+            
                 $leads = leads::create([
                     'leadName' => $request->leadName,
                     'job_title' => $request->job_title,     // Added job_title
