@@ -9,8 +9,10 @@ use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 class LeadsController extends Controller
 {
+   
     /**
      * Display a listing of the resource.
      */
@@ -39,17 +41,19 @@ class LeadsController extends Controller
                 'email' => 'nullable|string|email|max:255',// Added email attribute
                 'fax' => 'nullable|string|max:255',        // Added fax attribute
                 'website' => 'nullable|string|url|max:255',// Added website attribute
-                'status' => 'required|string|max:255',     // Ensure status is required
+                'status' => ['required',Rule::in(leads::STATUS) ],   // Ensure status is required
                 'employees' => 'nullable|integer',          // Added employees attribute
                 'rating' => 'nullable|string|max:100',             // Added rating attribute
-                'project' => 'nullable|string|max:255',
+                'project_id' => 'exists:projects,id',
                 'campaign' => 'nullable|string|max:255',
-                'project_cost' => 'nullable|numeric',
-                'date' => 'required|date',
+                'date' => 'nullable|date',
                 'remarks' => 'nullable|string',
                 'revenue' => 'nullable|numeric',
+                'budget'=>'nullable|numeric',
+                'lead_date' => 'nullable|date',
                 'skype' => 'nullable|string|max:255',
-                'user_id' => 'exists:users,id'
+                'user_id' => 'exists:users,id',
+                
             ]);
         
             if ($validated->fails()) {
@@ -61,12 +65,10 @@ class LeadsController extends Controller
                 
                 //$userWithLeastLeads = User::withCount('leads')->orderBy('leads_count', 'asc')->first();
                 $userWithLeastLeads = User::leftJoin('leads', 'users.id', '=', 'leads.user_id')
-                ->where('users.role', 'user')
                 ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
                 ->groupBy('users.id')
                 ->orderBy('lead_count')
                 ->first();
-            
                 $leads = leads::create([
                     'leadName' => $request->leadName,
                     'job_title' => $request->job_title,     // Added job_title
@@ -85,10 +87,11 @@ class LeadsController extends Controller
                     'remarks' => $request->remarks,
                     'revenue' => $request->revenue,
                     'skype' => $request->skype,
-                    'project' => $request->project,
+                    'project_id' => $request->project_id,
+                    'budget'=>$request->budget,
                     'campaign' => $request->campaign,
-                    'project_cost' => $request->project_cost,
                     'date' => $request->date,
+                    'lead_date'=>$request->lead_date,
                     'user_id' => $userWithLeastLeads->id,
                 ]);
             }
@@ -139,47 +142,48 @@ class LeadsController extends Controller
     }
     public function countLeadsByStatus($userId)
 {
-    $leadCounts = leads::select(
-        DB::raw('SUM(CASE WHEN status = "new" THEN 1 ELSE 0 END) AS New'),
-        DB::raw('SUM(CASE WHEN status = "converted" THEN 1 ELSE 0 END) AS Converted'),
-        DB::raw('SUM(CASE WHEN status = "follow up" THEN 1 ELSE 0 END) AS Follow_Ups'),
-        DB::raw('COUNT(*) AS Total_Leads')
-    )
-    ->where('user_id', $userId)
-    ->groupBy('user_id')
-    ->first();
-
-// If no leads found for the user, set counts to 0
-if (!$leadCounts) {
-    $leadCounts = [
-        'New' => 0,
-        'Converted' => 0,
-        'Follow_Ups' => 0,
-        'Total_Leads' => 0,
-    ];
-}else{
-    $leadCounts = $leadCounts->toArray();
+    $leadsCounts=leads::select('status', \DB::raw('count(*) as count'))
+        ->where('user_id', $userId)
+        ->groupBy('status')
+        ->get();
+        return response()->json($leadsCounts);   
 }
-
-return response()->json($leadCounts);
-}
-//Function to get leads for a specific user to evaluate his performance
-public function fetchLeadsByAllStatuses($userId)
+public function getEnums()
 {
-    $statuses = ['new', 'pending', 'valid', 'rejected', 'converted', 'follow up'];
-
-    $labels = [];
-    $totalLeads=[];
-    foreach ($statuses as $status) {
-        $labels[]=$status;
-        $totalLeads[] = leads::where('user_id', $userId)->where('status', $status)->count();
-    }
-
-     return [
-            'labels' => $labels,
-            'totalLeads' => $totalLeads,
-        ];
+    return response()->json([
+        'statuses' => leads::STATUS,
+        // 'projects' =>leads::PROJECT,
+    ]);
+    
 }
+// Laravel Controller to fetch user-specific data
+public function getUserLeads(Request $request)
+{
+    // Retrieve authenticated user ID from the request object
+        try {
+
+
+
+            $token= request()->bearerToken();
+            if (Str::startsWith($authorizationHeader, 'Bearer ')) {
+                // Extract the token (remove the "Bearer " prefix)
+                $accessToken = Str::substr($authorizationHeader, 7); // Remove "Bearer " prefix
+            } else {
+                // Token format is unexpected
+                return response()->json(['error' => 'Invalid token format'], 400);
+            }
+            // Retrieve the access token from the request headers
+            // Decrypt the access token
+           
+          // return response()->$authorizationHeader;
+           
+        } catch (\Exception $e) {
+            // Handle decryption errors
+            //return response()->json(['error' => 'Unauthorized'], 401);
+        }
+}
+
+
 
 
     /**
