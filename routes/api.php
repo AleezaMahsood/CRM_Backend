@@ -43,15 +43,19 @@ Route::group([
     Route::post('refresh', [ApiAuthController::class, 'refresh']);
     Route::post('me', [ApiAuthController::class, 'me']);
 });
-
+//Enums for project,leads and user
 Route::get('/enums',[ApiAuthController::class, 'getEnums']);
+Route::get('/Leadenums',[LeadsController::class, 'getEnums']);
+Route::get('/Projectenums',[ProjectController::class, 'getEnums']);
 //lead routes
 Route::get('/leads', [LeadsController::class, 'index']);
 Route::post('/leads', [LeadsController::class, 'store']);
 Route::get('/user/{userId}/leads', [LeadsController::class, 'countLeadsByStatus']);
-Route::get('/user/{userId}/performance',[LeadsController::class,'fetchLeadsByAllStatuses']);
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
+//Lead create Routes
+Route::get('/leads', [LeadsController::class, 'index']);
+Route::post('/leads', [LeadsController::class, 'store']);
 
 //campaign routes
 Route::get('/campaigns', [CampaignController::class ,'index']);
