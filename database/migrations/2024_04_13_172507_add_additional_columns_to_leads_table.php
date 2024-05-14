@@ -21,11 +21,13 @@ return new class extends Migration
         $table->string('email')->nullable();
         $table->string('fax')->nullable();
         $table->string('website')->nullable();
-        $table->string('status')->nullable();
+        $table->string('status')->required();
         $table->integer('employees')->nullable();
         $table->string('rating')->nullable();
         $table->integer('revenue')->nullable();
         $table->string('skype')->nullable();
+        $table->string('date')->nullable();
+        $table->string('budget')->nullable();
         $table->string('remarks')->nullable();
 
         });
