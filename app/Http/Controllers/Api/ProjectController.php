@@ -4,6 +4,7 @@
  use App\Models\Projects;
  use App\Http\Controllers\Controller;
  use Illuminate\Support\Facades\Validator;
+ use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
 {
@@ -22,19 +23,18 @@ class ProjectController extends Controller
         public function store(Request $request)
         {
             $validated = Validator::make($request->all(),[
-                    'project_name' => 'required|string|max:150',
-                    'project_location' => 'required|in:lahore,karachi,quetta,rawalpindi|max:255', 
-                    'project_type' => 'required|in:environmental,healthcare,IT,event_management|max:255', 
+                    'project_name' => 'required|string|max:150|unique:projects,project_name',
+                    'project_location' => ['required',Rule::in(Projects::LOCATIONS) ], 
+                    'project_type' => ['required',Rule::in(Projects::PROJECT) ], 
                     'min_price' => 'required|string|max:255',
                     'max_price' => 'required|string|max:255|gt:min_price'
                 ]);
               if($validated->fails()){
                   return response()->json([
-                      'status'=>422,
                       'error'=>$validated->messages()
                   ],422);
               }else{
-                  $campaigns = projects::create([
+                  $projects = projects::create([
                       'project_name' => $request->project_name,
                       'project_location' => $request->project_location,
                       'project_type' => $request->project_type,
@@ -43,11 +43,11 @@ class ProjectController extends Controller
                   ]); 
                   
               }
-              if($campaigns){
+              if($projects){
                   //$article->category()->attach($request->categories);
                   return response()->json([
                       'status'=>200,
-                      'message'=>'Campaigns created successfully'
+                      'message'=>'Project created successfully'
                   ]
                   ,200);
               }else{
@@ -58,6 +58,7 @@ class ProjectController extends Controller
                   ,500);    
                   }
                 }
+
             
                 /**
                  * Display the specified resource.
@@ -67,6 +68,14 @@ class ProjectController extends Controller
                     $article = projects::findOrFail($id);
                     return response()->json($article);
                 }
+                public function getEnums()
+                {
+                       return response()->json([
+                       'project_types' => Projects::PROJECT,
+                      
+                       'project_locations' => Projects::LOCATIONS,
+                       ]);
+                    }
             
                 /**
                  * Show the form for editing the specified resource.
