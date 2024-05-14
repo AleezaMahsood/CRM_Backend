@@ -15,10 +15,8 @@ return new class extends Migration
             $table->id();
             $table->string('leadName');
             $table->string('phoneNumber');
-            $table->string('project');
             $table->string('campaign')->nullable();
-            $table->integer('lead_cost');
-            $table->date('lead_date'); 
+            $table->date('lead_date')->nullable();
             $table->timestamps();
         });
     }
