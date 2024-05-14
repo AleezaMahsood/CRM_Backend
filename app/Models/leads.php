@@ -12,11 +12,10 @@ class leads extends Model
     protected $fillable=[
         'leadName',
         'phoneNumber',
-        'project',
         'campaign',
-        'project_cost',
         'date',
         'user_id',
+        'lead_date',
         'job_title',
         'mobile',
         'whatsapp',
@@ -27,13 +26,32 @@ class leads extends Model
         'fax',
         'website',
         'status',
+        'budget',
         'employees',
         'rating',
         'revenue',
         'skype',
         'remarks',
+        'project_id'
 
     ];
+    const STATUS = [
+        "New",
+        "Pending",
+        "Not Responding",
+        "Not Answering",
+        "Meeting Scheduled",
+        "Not Interested",
+        "Interested",
+        "Converted",
+        "Rejected",
+        "Invalid"
+      ];
+      public function project()
+    {
+        return $this->belongsTo(Projects::class);
+    }
+      
     public function user()
     {
         return $this->belongsTo(User::class);
