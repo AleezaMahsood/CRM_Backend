@@ -13,12 +13,8 @@ return new class extends Migration
     {
         Schema::table('leads', function (Blueprint $table) {
             $table->unsignedBigInteger('project_id')->nullable();
-
             // Define the foreign key constraint
-            $table->foreign('project_id')
-                  ->references('id')
-                  ->on('projects')
-                  ->onDelete('cascade');
+            $table->foreign('project_id')->references('id')->on('projects')->onDelete('cascade');
         });
     }
 

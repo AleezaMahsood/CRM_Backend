@@ -15,7 +15,6 @@ class leads extends Model
         'campaign',
         'date',
         'user_id',
-        'lead_date',
         'job_title',
         'mobile',
         'whatsapp',

@@ -12,10 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('projects', function (Blueprint $table) {
-            $table->id('project_id');
+            $table->id();
             $table->string('project_name', 150);
-            $table->enum('project_location',['environmental','healthcare','IT','event_management']);
-            $table->enum('project_type',['lahore','karachi','quetta','rawalpindi']);
+            $table->string('project_location',200);
+            $table->string('project_type',200);
             $table->string('min_price');
             $table->string('max_price');
             $table->timestamps();

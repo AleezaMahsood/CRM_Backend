@@ -51,6 +51,7 @@ Route::get('/Projectenums',[ProjectController::class, 'getEnums']);
 Route::get('/leads', [LeadsController::class, 'index']);
 Route::post('/leads', [LeadsController::class, 'store']);
 Route::get('/user/{userId}/leads', [LeadsController::class, 'countLeadsByStatus']);
+Route::get('/user/{userId}/performance', [LeadsController::class, 'fetchLeadsByAllStatuses']);
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
 //Lead create Routes
