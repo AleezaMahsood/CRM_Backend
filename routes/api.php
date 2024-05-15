@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Route;
 use App\Models\leads;
 use App\Http\Controllers\Api\LeadsController;
 use App\Http\Controllers\Api\ProjectController;
+use App\Http\Controllers\Api\PerformanceController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Models\Campaigns;
 use App\Models\Projects;
@@ -47,11 +48,12 @@ Route::group([
 Route::get('/enums',[ApiAuthController::class, 'getEnums']);
 Route::get('/Leadenums',[LeadsController::class, 'getEnums']);
 Route::get('/Projectenums',[ProjectController::class, 'getEnums']);
-//lead routes
-Route::get('/leads', [LeadsController::class, 'index']);
-Route::post('/leads', [LeadsController::class, 'store']);
-Route::get('/user/{userId}/leads', [LeadsController::class, 'countLeadsByStatus']);
-Route::get('/user/{userId}/performance', [LeadsController::class, 'fetchLeadsByAllStatuses']);
+
+//performance routes
+Route::get('/user/{userId}/leads', [PerformanceController::class, 'countLeadsByStatus']);
+Route::get('/user/{userId}/performance', [PerformanceController::class, 'fetchLeadsByAllStatuses']);
+Route::get('/admin/performance', [PerformanceController::class, 'evaluateUserPerformance']);
+
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
 //Lead create Routes

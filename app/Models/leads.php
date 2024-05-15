@@ -37,6 +37,7 @@ class leads extends Model
     const STATUS = [
         "New",
         "Pending",
+        "Follow_Ups",
         "Not Responding",
         "Not Answering",
         "Meeting Scheduled",
