@@ -39,7 +39,6 @@ class AutoLeadsAssign extends Command
                         ->withCount('leads')
                         ->orderBy('leads_count')
                         ->get();
-
                     if ($availableUsers->isNotEmpty()) {
                         // Assign lead to the user with the least number of leads
                         $newAssignedUser = $availableUsers->first();

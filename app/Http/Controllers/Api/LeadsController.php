@@ -20,9 +20,7 @@ class LeadsController extends Controller
     {
         $leads = leads::all();
         return response()->json($leads, 200, [], JSON_PRETTY_PRINT);
-
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -44,7 +42,7 @@ class LeadsController extends Controller
                 'status' => ['required',Rule::in(leads::STATUS) ],   // Ensure status is required
                 'employees' => 'nullable|integer',          // Added employees attribute
                 'rating' => 'nullable|string|max:100',             // Added rating attribute
-                'project_id' => 'exists:projects,id',
+                'project_id' => 'nullable|exists:projects,id',
                 'campaign' => 'nullable|string|max:255',
                 'date' => 'nullable|date',
                 'remarks' => 'nullable|string',

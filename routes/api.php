@@ -8,6 +8,7 @@ use App\Models\leads;
 use App\Http\Controllers\Api\LeadsController;
 use App\Http\Controllers\Api\ProjectController;
 use App\Http\Controllers\Api\PerformanceController;
+use App\Http\Controllers\Api\AdminPerformanceController;
 use App\Http\Controllers\Auth\ApiAuthController;
 use App\Models\Campaigns;
 use App\Models\Projects;
@@ -49,10 +50,13 @@ Route::get('/enums',[ApiAuthController::class, 'getEnums']);
 Route::get('/Leadenums',[LeadsController::class, 'getEnums']);
 Route::get('/Projectenums',[ProjectController::class, 'getEnums']);
 
-//performance routes
+//User performance routes
 Route::get('/user/{userId}/leads', [PerformanceController::class, 'countLeadsByStatus']);
 Route::get('/user/{userId}/performance', [PerformanceController::class, 'fetchLeadsByAllStatuses']);
+
+//Admin performance routes
 Route::get('/admin/performance', [PerformanceController::class, 'evaluateUserPerformance']);
+Route::get('/admin/leads-graph', [AdminPerformanceController::class, 'leadsGraph']);
 
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
