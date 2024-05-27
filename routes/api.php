@@ -62,7 +62,10 @@ Route::get('/admin/leads-graph', [AdminPerformanceController::class, 'leadsGraph
 Route::get('/users',[ApiAuthController::class, 'index']);
 //Lead create Routes
 Route::get('/leads', [LeadsController::class, 'index']);
+// User creating leads
 Route::post('/leads', [LeadsController::class, 'store']);
+// Admin creating leads
+Route::post('/leads/admin', [LeadsController::class, 'adminStore']);
 
 //campaign routes
 Route::get('/campaigns', [CampaignController::class ,'index']);

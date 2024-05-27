@@ -25,7 +25,8 @@ class LeadsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+// function to create leads for a particular user.
+     public function store(Request $request)
     {
             $validated = Validator::make($request->all(), [
                 'leadName' => 'required|string|max:255',
@@ -51,6 +52,7 @@ class LeadsController extends Controller
                 'lead_date' => 'nullable|date',
                 'skype' => 'nullable|string|max:255',
                 'user_id' => 'exists:users,id',
+                'created_by'=>'exists:users,id'
                 
             ]);
         
@@ -62,11 +64,7 @@ class LeadsController extends Controller
             } else {
                 
                 //$userWithLeastLeads = User::withCount('leads')->orderBy('leads_count', 'asc')->first();
-                $userWithLeastLeads = User::leftJoin('leads', 'users.id', '=', 'leads.user_id')
-                ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
-                ->groupBy('users.id')
-                ->orderBy('lead_count')
-                ->first();
+             
                 $leads = leads::create([
                     'leadName' => $request->leadName,
                     'job_title' => $request->job_title,     // Added job_title
@@ -90,7 +88,8 @@ class LeadsController extends Controller
                     'campaign' => $request->campaign,
                     'date' => $request->date,
                     'lead_date'=>$request->lead_date,
-                    'user_id' => $userWithLeastLeads->id,
+                    'user_id' => $request->user_id,
+                    'created_by'=>$request->created_by
                 ]);
             }
            
@@ -107,7 +106,62 @@ class LeadsController extends Controller
                 ], 500);
             }
     }
-        
+     //Function to add leads by admin
+     public function adminStore(Request $request)
+     {
+             $validated = Validator::make($request->all(), [
+                 'leadName' => 'required|string|max:255',
+                 'phoneNumber' => 'required|string|max:255',      // Added phone attribute
+                 'status' => ['required',Rule::in(leads::STATUS) ],   // Ensure status is required
+                 'project_id' => 'nullable|exists:projects,id',
+                 'campaign' => 'nullable|string|max:255',
+                 'date' => 'nullable|date',
+                 'remarks' => 'nullable|string',
+                 'user_id' => 'exists:users,id',
+                 'created_by'=>'exists:users,id'              
+             ]);
+         
+             if ($validated->fails()) {
+                 return response()->json([
+                     'status' => 422,
+                     'error' => $validated->messages()
+                 ], 422);
+             } else {
+                 
+                 //$userWithLeastLeads = User::withCount('leads')->orderBy('leads_count', 'asc')->first();
+                 $userWithLeastLeads = User::where('role', 'user')
+    ->leftJoin('leads', 'users.id', '=', 'leads.user_id')
+    ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
+    ->groupBy('users.id')
+    ->orderBy('lead_count')
+    ->first();
+             
+                 $leads = leads::create([
+                     'leadName' => $request->leadName,
+                     'phoneNumber' => $request->phoneNumber,             // Added phone
+                     'project_id' => $request->project_id,
+                     'campaign' => $request->campaign,
+                     'status'=>$request->status,
+                     'date' => $request->date,
+                     'user_id' => $userWithLeastLeads->id,
+                     'created_by'=>$request->created_by,
+                     'remarks'=>$request->remarks
+                 ]);
+             }
+            
+         
+             if ($leads) {
+                 return response()->json([
+                     'status' => 200,
+                     'message' => 'Lead created successfully'
+                 ], 200);
+             } else {
+                 return response()->json([
+                     'status' => 500,
+                     'message' => 'Something went wrong'
+                 ], 500);
+             }
+     }   
 
 
 

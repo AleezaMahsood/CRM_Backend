@@ -31,7 +31,8 @@ class leads extends Model
         'revenue',
         'skype',
         'remarks',
-        'project_id'
+        'project_id',
+        'created_by'
 
     ];
     const STATUS = [
