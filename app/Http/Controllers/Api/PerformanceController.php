@@ -75,13 +75,16 @@ public function evaluateUserPerformance()
         $totalLeads = array_sum($leadsByStatus);
         $convertedLeads = $leadsByStatus['Converted'];
         $conversionRate = $totalLeads > 0 ? ($convertedLeads / $totalLeads) * 100 : 0;
+        $conversionRateFormatted = number_format($conversionRate, 2) . '%';
 
         $userData = [
             'user_id' => $user->id,
-            'name' => $user->firstName .' '. $user->lastName,
+            'firstName' => $user->firstName,
+             'lastName'=>$user->lastName,
             'email' => $user->email,
             'Overall' => $totalLeads,
-            'conversion_rate' => $conversionRate,
+            'conversion_rate' => $conversionRateFormatted,
+            'logged_in'=>$user->last_login_time
         ];
 
         foreach ($leadsByStatus as $status => $count) {

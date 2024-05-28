@@ -18,7 +18,16 @@ class LeadsController extends Controller
      */
     public function index()
     {
-        $leads = leads::all();
+        $leads = leads::with('User')->get();
+
+        // Modify the leads collection to include the user's department directly
+        $leads->transform(function ($lead) {
+            $lead->department = $lead->User->department;
+            $lead->firstName=$lead->User->firstName;
+            $lead->lastName=$lead->User->lastName;
+            unset($lead->User); // Optionally remove the user object if it's not needed
+            return $lead;
+        });
         return response()->json($leads, 200, [], JSON_PRETTY_PRINT);
     }
 
