@@ -85,5 +85,4 @@ Route::post('/projects',[ ProjectController::class ,'store']);
  //   Mail::to('nimo.khan191@gmail.com')->send(new TestEmail($campaign));
 
     // return 'Campaign email sent!';
-// 
-});
+// });
