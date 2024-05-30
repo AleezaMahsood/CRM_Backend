@@ -13,6 +13,8 @@ use App\Http\Controllers\Auth\ApiAuthController;
 use App\Models\Campaigns;
 use App\Models\Projects;
 use App\Http\Middleware\CustomAuthMiddleware;
+use Illuminate\Support\Facades\Mail; 
+use App\Mail\TestEmail;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,6 +59,7 @@ Route::get('/user/{userId}/performance', [PerformanceController::class, 'fetchLe
 //Admin performance routes
 Route::get('/admin/performance', [PerformanceController::class, 'evaluateUserPerformance']);
 Route::get('/admin/leads-graph', [AdminPerformanceController::class, 'leadsGraph']);
+Route::get('/admin/projects-graph',[AdminPerformanceController::class,'getProjectStats']);
 
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);
@@ -74,3 +77,13 @@ Route::post('/campaigns', [CampaignController::class ,'store']);
 //project routes 
 Route::get('/projects', [ProjectController::class ,'index']);
 Route::post('/projects',[ ProjectController::class ,'store']);
+
+
+//Route::get('/send-test-email', function () {
+//    $campaign = Campaigns::findOrFail(1);
+
+ //   Mail::to('nimo.khan191@gmail.com')->send(new TestEmail($campaign));
+
+    // return 'Campaign email sent!';
+// 
+});

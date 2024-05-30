@@ -1,6 +1,8 @@
 <?php
-
+use Illuminate\Support\Facades\Mail; 
 use Illuminate\Support\Facades\Route;
+use App\Mail\TestEmail;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -14,7 +16,8 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    return ['Laravel' => app()->version()];
+   return ['Laravel' => app()->version()];
 });
+
 
 require __DIR__.'/auth.php';

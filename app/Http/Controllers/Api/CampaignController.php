@@ -5,6 +5,9 @@ use Illuminate\Http\Request;
 use App\Models\Campaigns;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Mail\TestEmail;
+use App\Models\leads;
+use Illuminate\Support\Facades\Mail; 
 
 class CampaignController extends Controller
 {
@@ -43,8 +46,23 @@ class CampaignController extends Controller
                   'actual_cost' => $request->actual_cost,
                   'expected_revenue' => $request->expected_revenue
               ]); 
-              
+                        
           }
+   
+    //$leads = leads::all();
+
+   // foreach ($leads as $lead) {
+    //    Mail::to($lead->email)->send(new TestEmail($campaigns));
+   // }
+   $leadEmails = leads::pluck('email');
+
+// Filter out valid email addresses (e.g., remove dummy or invalid emails)
+$validEmails = $leadEmails->filter(function ($email) {
+    return filter_var($email, FILTER_VALIDATE_EMAIL);
+});
+
+// Send the email to valid recipients
+Mail::to($validEmails)->send(new TestEmail($campaigns));
           if($campaigns){
               //$article->category()->attach($request->categories);
               return response()->json([

@@ -5,6 +5,7 @@ use App\Models\leads;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Projects;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
@@ -76,6 +77,14 @@ class AdminPerformanceController extends Controller
 
     // Return the result as JSON
     return response()->json($filteredData);
+}
+public function getProjectStats()
+{
+    $projectStats = projects::select('project_type', \DB::raw('count(*) as count'))
+        ->groupBy('project_type')
+        ->get();
+
+    return response()->json($projectStats);
 }
 }
 
