@@ -26,8 +26,8 @@ class ProjectController extends Controller
                     'project_name' => 'required|string|max:150|unique:projects,project_name',
                     'project_location' => ['required',Rule::in(Projects::LOCATIONS) ], 
                     'project_type' => ['required',Rule::in(Projects::PROJECT) ], 
-                    'min_price' => 'required|string|max:255',
-                    'max_price' => 'required|string|max:255|gt:min_price'
+                    'min_price' => 'required|integer',
+                    'max_price' => 'required|integer|gt:min_price'
                 ]);
               if($validated->fails()){
                   return response()->json([
@@ -57,6 +57,16 @@ class ProjectController extends Controller
                   ]
                   ,500);    
                   }
+                }
+                public function checkProjectName(Request $request )
+                {
+                 try {
+                     $projectName = $request->input('project_name');
+                     $exists = projects::where('project_name', $projectName)->exists();
+                     return response()->json(['exists' => $exists]);
+                 } catch (\Exception $e) {
+                     return response()->json(['error' => 'Internal Server Error'], 500);
+                 }
                 }
 
             
