@@ -60,6 +60,7 @@ Route::get('/user/{userId}/performance', [PerformanceController::class, 'fetchLe
 Route::get('/admin/performance', [PerformanceController::class, 'evaluateUserPerformance']);
 Route::get('/admin/leads-graph', [AdminPerformanceController::class, 'leadsGraph']);
 Route::get('/admin/projects-graph',[AdminPerformanceController::class,'getProjectStats']);
+Route::get('/admin/stats',[AdminPerformanceController::class,'getLeadStatistics']);
 
 //user routes
 Route::get('/users',[ApiAuthController::class, 'index']);

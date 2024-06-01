@@ -27,23 +27,29 @@ class AutoLeadsAssign extends Command
      */
     public function handle()
     {
-        $leads = leads::where('status', 'new')->get();
+        // Fetch all leads with 'new' status
+        $leads = leads::where('status', 'New')->get();
 
         foreach ($leads as $lead) {
-            // Check if lead status is still "new"
-            if ($lead->status === 'new') {
-                // Check if lead was last updated more than 8 hours ago
+            // Check if the lead status is still "new"
+            if ($lead->status === 'New') {
+                // Check if the lead was last updated more than 8 hours ago
                 if ($lead->updated_at->addHours(8)->isPast()) {
-                    // Get list of available users to reassign lead with least number of leads
-                    $availableUsers = User::where('id', '!=', $lead->user_id)
-                        ->withCount('leads')
-                        ->orderBy('leads_count')
-                        ->get();
-                    if ($availableUsers->isNotEmpty()) {
-                        // Assign lead to the user with the least number of leads
-                        $newAssignedUser = $availableUsers->first();
-                        $lead->user_id = $newAssignedUser->id;
-                        $lead->save();
+                    // Check if the lead was not created by the current assigned user
+                    if ($lead->user_id !== $lead->created_by) {
+                        // Get a list of available users to reassign the lead with the least number of leads
+                        $availableUsers = User::where('id', '!=', $lead->user_id)
+                            ->where('role', 'user') // Add this line to filter by role
+                            ->withCount('leads')
+                            ->orderBy('leads_count')
+                            ->get();
+
+                        if ($availableUsers->isNotEmpty()) {
+                            // Assign the lead to the user with the least number of leads
+                            $newAssignedUser = $availableUsers->first();
+                            $lead->user_id = $newAssignedUser->id;
+                            $lead->save();
+                        }
                     }
                 }
             }

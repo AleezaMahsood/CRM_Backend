@@ -86,6 +86,37 @@ public function getProjectStats()
 
     return response()->json($projectStats);
 }
-}
 
+public function getLeadStatistics()
+{
+    $statuses = leads::STATUS;
+    $statusCounts = leads::select(
+        'status',
+        DB::raw('COUNT(*) as count')
+    )
+    ->groupBy('status')
+    ->pluck('count', 'status');
+
+    // Get the total number of leads
+    $totalLeads = leads::count();
+
+    // Calculate the total budget
+    $totalBudget = leads::sum('revenue');
+
+    // Prepare the response data
+    $data = [
+        'total_leads' => $totalLeads,
+        'total_budget' => $totalBudget,
+    ];
+
+    foreach ($statuses as $status) {
+        $data[$status] = $statusCounts->get($status, 0);
+    }
+
+    return response()->json($data);
+}     
+   
+
+
+}
 
