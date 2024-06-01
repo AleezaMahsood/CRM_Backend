@@ -5,9 +5,6 @@ use Illuminate\Http\Request;
 use App\Models\Campaigns;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
-use App\Mail\TestEmail;
-use App\Models\leads;
-use Illuminate\Support\Facades\Mail; 
 
 class CampaignController extends Controller
 {
@@ -18,6 +15,7 @@ class CampaignController extends Controller
     {
         $campaigns = campaigns::all();
         return response()->json($campaigns, 200, [], JSON_PRETTY_PRINT);
+       
     }
 
     /**
@@ -26,12 +24,12 @@ class CampaignController extends Controller
     public function store(Request $request)
     {
         $validated = Validator::make($request->all(),[
-            'campaign_name' => 'required|string|max:150',
+            'campaign_name' => 'required|string|max:150|unique:campaigns,campaign_name',
             'description' => 'required|string|max:255',
             'start_date' => 'nullable|date',
             'end_date' => 'nullable|date|after:start_date',
-            'expected_revenue' => 'required|string|max:255',
-            'actual_cost' => 'required|string|max:255' ]);
+            'expected_revenue' => 'required|integer',
+            'actual_cost' => 'required|integer' ]);
           if($validated->fails()){
               return response()->json([
                   'status'=>422,
@@ -46,23 +44,8 @@ class CampaignController extends Controller
                   'actual_cost' => $request->actual_cost,
                   'expected_revenue' => $request->expected_revenue
               ]); 
-                        
+              
           }
-   
-    //$leads = leads::all();
-
-   // foreach ($leads as $lead) {
-    //    Mail::to($lead->email)->send(new TestEmail($campaigns));
-   // }
-   $leadEmails = leads::pluck('email');
-
-// Filter out valid email addresses (e.g., remove dummy or invalid emails)
-$validEmails = $leadEmails->filter(function ($email) {
-    return filter_var($email, FILTER_VALIDATE_EMAIL);
-});
-
-// Send the email to valid recipients
-Mail::to($validEmails)->send(new TestEmail($campaigns));
           if($campaigns){
               //$article->category()->attach($request->categories);
               return response()->json([
@@ -78,14 +61,26 @@ Mail::to($validEmails)->send(new TestEmail($campaigns));
               ,500);    
               }
             }
+            // Method to check if a campaign name exists
+           public function checkCampaignName(Request $request )
+           {
+            try {
+                $campaignName = $request->input('campaign_name');
+                $exists = campaigns::where('campaign_name', $campaignName)->exists();
+                return response()->json(['exists' => $exists]);
+            } catch (\Exception $e) {
+                return response()->json(['error' => 'Internal Server Error'], 500);
+            }
+           }
         
             /**
              * Display the specified resource.
              */
             public function show(string $id)
             {
-                $article = campaigns::findOrFail($id);
+               $article = campaigns::findOrFail($id);
                 return response()->json($article);
+                 
             }
         
             /**
