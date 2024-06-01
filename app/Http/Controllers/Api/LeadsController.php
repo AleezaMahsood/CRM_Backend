@@ -31,6 +31,7 @@ class LeadsController extends Controller
         return response()->json($leads, 200, [], JSON_PRETTY_PRINT);
     }
 
+    
     /**
      * Store a newly created resource in storage.
      */
@@ -53,7 +54,7 @@ class LeadsController extends Controller
                 'employees' => 'nullable|integer',          // Added employees attribute
                 'rating' => 'nullable|string|max:100',             // Added rating attribute
                 'project_id' => 'nullable|exists:projects,id',
-                'campaign' => 'nullable|string|max:255',
+                'campaign_id' => 'nullable|exists:campaigns,id',
                 'date' => 'nullable|date',
                 'remarks' => 'nullable|string',
                 'revenue' => 'nullable|numeric',
@@ -94,7 +95,7 @@ class LeadsController extends Controller
                     'skype' => $request->skype,
                     'project_id' => $request->project_id,
                     'budget'=>$request->budget,
-                    'campaign' => $request->campaign,
+                    'campaign_id' => $request->campaign_id,
                     'date' => $request->date,
                     'lead_date'=>$request->lead_date,
                     'user_id' => $request->user_id,
@@ -123,8 +124,10 @@ class LeadsController extends Controller
                  'phoneNumber' => 'required|string|max:255',      // Added phone attribute
                  'status' => ['required',Rule::in(leads::STATUS) ],   // Ensure status is required
                  'project_id' => 'nullable|exists:projects,id',
-                 'campaign' => 'nullable|string|max:255',
+                 'email' => 'nullable|string|email|max:255',
+                 'campaign_id' => 'nullable|exists:campaigns,id',
                  'date' => 'nullable|date',
+                 'budget'=>'nullable|numeric',
                  'remarks' => 'nullable|string',
                  'user_id' => 'exists:users,id',
                  'created_by'=>'exists:users,id'              
@@ -149,9 +152,11 @@ class LeadsController extends Controller
                      'leadName' => $request->leadName,
                      'phoneNumber' => $request->phoneNumber,             // Added phone
                      'project_id' => $request->project_id,
-                     'campaign' => $request->campaign,
+                     'campaign_id' => $request->campaign_id,
                      'status'=>$request->status,
                      'date' => $request->date,
+                     'email' => $request->email, 
+                     'budget'=>$request->budget,
                      'user_id' => $userWithLeastLeads->id,
                      'created_by'=>$request->created_by,
                      'remarks'=>$request->remarks
@@ -179,8 +184,14 @@ class LeadsController extends Controller
      */
     public function show(string $id)
     {
-        $article = leads::findOrFail($id);
-        return response()->json($article);
+        //$article = leads::findOrFail($id);
+        //return response()->json($article);
+        $lead = leads::find($id);
+        if (!$lead) {
+            return response()->json(['error' => 'Lead not found'], 404);
+        }
+
+    return response()->json($lead);
     }
 
     /**
@@ -194,12 +205,41 @@ class LeadsController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, leads $lead)
+   /* public function update(Request $request, leads $lead)
     {
         //
         $lead->update($request->all());
 
         return response()->json($lead, 200);
+    }*/
+    public function ValidateEmail(Request $request)
+{
+    try {
+        $lead_email = $request->input('email');
+
+        $exists = leads::where('email', $lead_email)->exists();
+        return response()->json(['exists' => $exists]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Internal Server Error'], 500);
+    }
+}
+
+public function ValidatePhone(Request $request)
+{
+    try {
+        $lead_phone = $request->input('phoneNumber');
+        $exists = leads::where('phoneNumber', $lead_phone)->exists();
+
+        return response()->json(['exists' => $exists]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Internal Server Error'], 500);
+    }
+}
+    public function update(Request $request, $id)
+    {
+        $lead = leads::findOrFail($id);
+        $lead->update($request->all());
+        return response()->json($lead);
     }
 
 public function getEnums()
