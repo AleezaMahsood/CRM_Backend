@@ -17,4 +17,8 @@ class Campaigns extends Model
         'end_date',
         'expected_revenue',
         'actual_cost'];
+      public function lead()
+        {
+            return $this->hasOne(leads::class);
+        }
 }
