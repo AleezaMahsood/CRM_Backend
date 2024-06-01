@@ -57,4 +57,8 @@ class leads extends Model
     {
         return $this->belongsTo(User::class);
     }
+     public function campaign()
+    {
+        return $this->belongsTo(Campaigns::class);
+    }
 }
