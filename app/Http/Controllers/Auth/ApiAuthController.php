@@ -188,6 +188,48 @@ public function index()
     });
 
     return response()->json($users, 200, [], JSON_PRETTY_PRINT);
-}  
+} 
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found'], 404);
+        }
+
+        $user->firstName = $request->input('firstName');
+        $user->lastName = $request->input('lastName');
+        $user->email = $request->input('email');
+        $user->phone = $request->input('phone');
+        $user->designation = $request->input('designation');
+        $user->team = $request->input('team');
+        $user->department = $request->input('department');
+
+        if ($request->input('newPassword') && $request->input('confirmPassword')) {
+            if ($request->input('newPassword') === $request->input('confirmPassword')) {
+                if (Hash::check($request->input('password'), $user->password)) {
+                    $user->password = Hash::make($request->input('newPassword'));
+                } else {
+                    return response()->json(['message' => 'Old password is incorrect'], 400);
+                }
+            } else {
+                return response()->json(['message' => 'New password and confirmation do not match'], 400);
+            }
+        }
+
+        $user->save();
+
+        return response()->json(['message' => 'User updated successfully']);
+    }
+    public function showUser($id)
+{
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'User not found'], 404);
+    }
+
+    return response()->json($user);
+}
     
 }
