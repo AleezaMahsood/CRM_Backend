@@ -46,6 +46,10 @@ Route::group([
     Route::post('logout', [ApiAuthController::class, 'logout']);
     Route::post('refresh', [ApiAuthController::class, 'refresh']);
     Route::post('me', [ApiAuthController::class, 'me']);
+
+    // Only logged-in users can update their profile
+     Route::put('user/{id}', [ApiAuthController::class, 'updateUser']);
+     Route::get('user/{id}', [ApiAuthController::class, 'showUser']); 
 });
 //Enums for project,leads and user
 Route::get('/enums',[ApiAuthController::class, 'getEnums']);
