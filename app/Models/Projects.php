@@ -28,9 +28,9 @@ const PROJECT = [
     "Virtual Reality (VR) and Augmented Reality (AR)",
   ];
   const LOCATIONS = ['Islamabad','Peshawar','Quetta','Multan','Rawalpindi', 'Karachi', 'Lahore'];
-  public function lead()
-    {
-        return $this->hasOne(leads::class);
-    }
+ public function leads()
+        {
+            return $this->hasMany(leads::class);
+        }
 
 }
