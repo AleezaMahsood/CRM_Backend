@@ -201,6 +201,22 @@ class LeadsController extends Controller
     {
         //
     }
+      public function userLeads($userId)
+    {
+        //try {
+            $leads = leads::where('user_id', $userId)->get();
+            return response()->json($leads, 200);
+        //} catch (\Exception $e) {
+         //   return response()->json(['message' => 'Error fetching user leads'], 500);
+       // }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $lead = leads::findOrFail($id);
+        $lead->update($request->all());
+        return response()->json($lead);
+    }
 
     /**
      * Update the specified resource in storage.
@@ -212,35 +228,6 @@ class LeadsController extends Controller
 
         return response()->json($lead, 200);
     }*/
-    public function ValidateEmail(Request $request)
-{
-    try {
-        $lead_email = $request->input('email');
-
-        $exists = leads::where('email', $lead_email)->exists();
-        return response()->json(['exists' => $exists]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Internal Server Error'], 500);
-    }
-}
-
-public function ValidatePhone(Request $request)
-{
-    try {
-        $lead_phone = $request->input('phoneNumber');
-        $exists = leads::where('phoneNumber', $lead_phone)->exists();
-
-        return response()->json(['exists' => $exists]);
-    } catch (\Exception $e) {
-        return response()->json(['error' => 'Internal Server Error'], 500);
-    }
-}
-    public function update(Request $request, $id)
-    {
-        $lead = leads::findOrFail($id);
-        $lead->update($request->all());
-        return response()->json($lead);
-    }
 
 public function getEnums()
 {
