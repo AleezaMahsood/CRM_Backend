@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\Campaigns;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
@@ -150,7 +151,7 @@ class LeadsController extends Controller
              
                  $leads = leads::create([
                      'leadName' => $request->leadName,
-                     'phoneNumber' => $request->phoneNumber,             // Added phone
+                      'phoneNumber' => $request->phoneNumber,             // Added phone
                      'project_id' => $request->project_id,
                      'campaign_id' => $request->campaign_id,
                      'status'=>$request->status,

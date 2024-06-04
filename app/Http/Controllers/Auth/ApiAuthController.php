@@ -158,13 +158,16 @@ class ApiAuthController extends Controller
      */
     protected function respondWithToken($token,$user)
     {
+        $defaultTTL = auth()->factory()->getTTL();
+        $expiration = max($defaultTTL * 60, 20 * 60); // Use the higher of default and 20 minutes
         # This function is used to make JSON response with new
         # access token of current user
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
             'role'=>$user->role,
-            'expires_in' => auth()->factory()->getTTL() * 60
+           // 'expires_in' => auth()->factory()->getTTL() * 60
+           'expires_in' => $expiration,
         ]);
     }
 

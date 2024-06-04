@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('campaigns', function (Blueprint $table) {
-                $table->id('campaign_id');
+                $table->id();
                 $table->string('campaign_name', 150);
                 $table->text('description');
                 $table->date('start_date')->nullable();
