@@ -12,7 +12,7 @@ class leads extends Model
     protected $fillable=[
         'leadName',
         'phoneNumber',
-        'campaign',
+        'campaign_id',
         'date',
         'user_id',
         'job_title',

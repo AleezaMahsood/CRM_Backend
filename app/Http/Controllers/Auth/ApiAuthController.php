@@ -24,6 +24,7 @@ class ApiAuthController extends Controller
         'firstName' => 'required|string|max:255',
         'lastName' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users',
+        'phone'=>'required|string|max:255',
         'password' => 'required|string|min:6|confirmed',
         'gender' => ['required', Rule::in(User::GENDER)],
         'location' => ['required', Rule::in(User::LOCATIONS)],
@@ -42,6 +43,7 @@ class ApiAuthController extends Controller
     //$data['remember_token'] = Str::random(10);
 
     // Add additional user attributes
+    $data['phone']=$request->phone;
     $data['gender'] = $request->gender;
     $data['location'] = $request->location;
     $data['department'] = $request->department;

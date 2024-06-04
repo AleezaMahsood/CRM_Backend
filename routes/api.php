@@ -55,6 +55,9 @@ Route::group([
 Route::get('/enums',[ApiAuthController::class, 'getEnums']);
 Route::get('/Leadenums',[LeadsController::class, 'getEnums']);
 Route::get('/Projectenums',[ProjectController::class, 'getEnums']);
+//leads updation
+Route::get('/user/{userId}/lead', [LeadsController::class, 'userLeads']);
+Route::put('/leads/{id}', [LeadsController::class, 'update']);
 
 //User performance routes
 Route::get('/user/{userId}/leads', [PerformanceController::class, 'countLeadsByStatus']);
@@ -91,9 +94,7 @@ Route::get('/projects', [ProjectController::class ,'index']);
 Route::post('/projects',[ ProjectController::class ,'store']);
 Route::post('/projects/check-project-name', [ProjectController::class, 'checkProjectName']);
 
-//leads updation
-Route::get('/user/{userId}/lead', [LeadsController::class, 'userLeads']);
-Route::put('/leads/{id}', [LeadsController::class, 'update']);
+
 
 //Route::get('/send-test-email', function () {
 //    $campaign = Campaigns::findOrFail(1);

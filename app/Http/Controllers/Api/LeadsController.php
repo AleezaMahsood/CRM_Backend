@@ -202,14 +202,10 @@ class LeadsController extends Controller
     {
         //
     }
-      public function userLeads($userId)
+    public function UserLeads($userId)
     {
-        //try {
             $leads = leads::where('user_id', $userId)->get();
             return response()->json($leads, 200);
-        //} catch (\Exception $e) {
-         //   return response()->json(['message' => 'Error fetching user leads'], 500);
-       // }
     }
 
     public function update(Request $request, $id)

@@ -96,4 +96,10 @@ public function evaluateUserPerformance()
 
     return $result;
 }
+public function UserLeads($userId)
+{
+        $leads = leads::where('user_id', $userId)->get();
+        return response()->json($leads, 200);
+}
+
 }
