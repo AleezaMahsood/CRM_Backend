@@ -93,7 +93,7 @@ class ApiAuthController extends Controller
 
        
 
-        return $this->respondWithToken($token);
+        return $this->respondWithToken($token,$user);
        
        
         //$token = $user->createToken('authToken')->plainTextToken;
@@ -156,13 +156,14 @@ class ApiAuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    protected function respondWithToken($token)
+    protected function respondWithToken($token,$user)
     {
         # This function is used to make JSON response with new
         # access token of current user
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
+            'role'=>$user->role,
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
     }
