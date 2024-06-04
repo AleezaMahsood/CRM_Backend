@@ -78,8 +78,7 @@ Route::post('/leads/admin', [LeadsController::class, 'adminStore']);
 Route::put('/leads/{id}', [LeadsController::class, 'update']);
 //fetching specific leads data
 Route::get('/leads/{id}', [LeadsController::class, 'show']);
-Route::post('/leads/check-email', [LeadsController::class, 'ValidateEmail']);
-Route::post('/leads/check-phone', [LeadsController::class, 'ValidatePhone']);
+
 
 
 //campaign routes
@@ -91,6 +90,10 @@ Route::post('/campaigns/check-campaign-name', [CampaignController::class, 'check
 Route::get('/projects', [ProjectController::class ,'index']);
 Route::post('/projects',[ ProjectController::class ,'store']);
 Route::post('/projects/check-project-name', [ProjectController::class, 'checkProjectName']);
+
+//leads updation
+Route::get('/user/{userId}/lead', [LeadsController::class, 'userLeads']);
+Route::put('/leads/{id}', [LeadsController::class, 'update']);
 
 //Route::get('/send-test-email', function () {
 //    $campaign = Campaigns::findOrFail(1);
