@@ -89,6 +89,9 @@ public function getProjectStats()
 
 public function getLeadStatistics()
 {
+    // Define the conversion status
+    $conversionStatus = 'converted'; // Adjust this to match your actual conversion status
+
     $statuses = leads::STATUS;
     $statusCounts = leads::select(
         'status',
@@ -101,12 +104,20 @@ public function getLeadStatistics()
     $totalLeads = leads::count();
 
     // Calculate the total budget
-    $totalBudget = leads::sum('revenue');
+    $totalBudget = leads::sum('budget');
+
+    // Count the number of converted leads
+    $convertedLeadsCount = leads::where('status', $conversionStatus)->count();
+
+    // Calculate the conversion rate
+    $conversionRate = $totalLeads > 0 ? ($convertedLeadsCount / $totalLeads) * 100 : 0;
+    $formattedConversionRate = number_format($conversionRate, 2);
 
     // Prepare the response data
     $data = [
         'total_leads' => $totalLeads,
         'total_budget' => $totalBudget,
+        'conversion_rate' => $formattedConversionRate, // Add conversion rate to the response data
     ];
 
     foreach ($statuses as $status) {
@@ -114,8 +125,8 @@ public function getLeadStatistics()
     }
 
     return response()->json($data);
-}     
-   
+}
+
 
 
 }
