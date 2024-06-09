@@ -81,7 +81,7 @@ Route::post('/leads/admin', [LeadsController::class, 'adminStore']);
 Route::put('/leads/{id}', [LeadsController::class, 'update']);
 //fetching specific leads data
 Route::get('/leads/{id}', [LeadsController::class, 'show']);
-
+Route::post('/chatbot/leads',[LeadsController::class,'storeFromChatbot']);
 
 
 //campaign routes

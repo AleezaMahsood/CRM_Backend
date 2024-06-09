@@ -8,9 +8,12 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Campaigns;
 use Illuminate\Support\Facades\DB;
+use App\Mail\MeetingScheduledMail;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Mail; 
+
 class LeadsController extends Controller
 {
    
@@ -117,6 +120,44 @@ class LeadsController extends Controller
                 ], 500);
             }
     }
+    //function to add leads by chatbot
+    public function storeFromChatbot(Request $request)
+    {
+        // Access data directly from the JSON payload
+       
+
+        // You can also use dynamic properties if you prefer
+        $company = $request->company;
+        $validated = $request->validate([
+            'leadName' => 'required|string|max:255',
+            'phoneNumber' => 'required|string|max:255',
+            'email' => 'required|email',
+            'date' => 'nullable|date',
+            'company' => 'nullable|string|max:255',
+            'job_title' => 'nullable|string|max:255',
+        ]);
+        $userWithLeastLeads = User::where('role', 'user')
+        ->leftJoin('leads', 'users.id', '=', 'leads.user_id')
+        ->select('users.id', DB::raw('COUNT(leads.id) as lead_count'))
+        ->groupBy('users.id')
+        ->orderBy('lead_count')
+        ->first();
+    
+        // Set default values for nullable fields
+        $lead = leads::create([
+            'leadName' => $validated['leadName'],
+            'phoneNumber' => $validated['phoneNumber'] ?? '',
+            'email' => $validated['email'] ?? '',
+            'date' => $validated['date'] ?? now(),  // Use current date if not provided
+            'company' => $validated['company'] ?? '',
+            'job_title' => $validated['job_title'] ?? '',
+            'status' => 'New',  // Default status
+            'user_id'=>$userWithLeastLeads->id,
+            'created_by'=>1
+        ]);
+    
+        return response()->json($lead, 201);
+    }
      //Function to add leads by admin
      public function adminStore(Request $request)
      {
@@ -211,7 +252,13 @@ class LeadsController extends Controller
     public function update(Request $request, $id)
     {
         $lead = leads::findOrFail($id);
+        $originalStatus = $lead->status;
         $lead->update($request->all());
+        if ($lead->status == 'Meeting Scheduled' && $originalStatus != 'Meeting Scheduled') {
+            // Send email to the lead
+            $email=$lead->email;
+            Mail::to($email)->send(new MeetingScheduledMail($lead));
+        }
         return response()->json($lead);
     }
 
