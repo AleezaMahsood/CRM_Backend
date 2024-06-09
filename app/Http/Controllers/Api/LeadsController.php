@@ -22,6 +22,37 @@ class LeadsController extends Controller
      */
     public function index()
     {
+        $leads = Leads::with(['user', 'project'])->get();
+
+        // Modify the leads collection to include the user's department directly
+        $leads->transform(function ($lead) {
+            if ($lead->user) {
+                $lead->department = $lead->user->department;
+                $lead->firstName = $lead->user->firstName;
+                $lead->lastName = $lead->user->lastName;
+            } else {
+                $lead->department = "Department not available";
+                $lead->firstName = "First name not available";
+                $lead->lastName = "Last name not available";
+            }
+            
+            // Include the project name
+            if ($lead->project) {
+                $lead->project_name = $lead->project->project_name;
+            } else {
+                $lead->project_name = "nill";
+            }
+
+            unset($lead->user); // Optionally remove the user object if it's not needed
+            unset($lead->project); // Optionally remove the project object if it's not needed
+            return $lead;
+        });
+
+        return response()->json($leads, 200, [], JSON_PRETTY_PRINT);
+    }
+
+    /*public function index()
+    {
         $leads = leads::with('User')->get();
 
         // Modify the leads collection to include the user's department directly
@@ -33,7 +64,7 @@ class LeadsController extends Controller
             return $lead;
         });
         return response()->json($leads, 200, [], JSON_PRETTY_PRINT);
-    }
+    }*/
 
     
     /**
